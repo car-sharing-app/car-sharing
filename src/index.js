@@ -21,7 +21,8 @@ app.get("/", (req, res) => {
 });
 
 
-require('./routes/auth.routes')(app);
+const authRouter = require('./routes/auth.routes');
+app.use('/auth', authRouter);
 require('./routes/user.routes')(app);
 
 const PORT = process.env.PORT || 3000;
@@ -37,13 +38,7 @@ function initial() {
 
     Role.create({
         id: 2,
-        name: "moderator"
-    });
-
-    Role.create({
-        id: 3,
         name: "admin"
     });
 }
-
 initial();
