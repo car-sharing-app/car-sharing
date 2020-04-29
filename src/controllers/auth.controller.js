@@ -6,6 +6,7 @@ const User = db.user;
 const Role = db.role;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const { cache } = require("../services/cache");
 
 exports.register = async (req, res) => {
   const { username, email, password, phoneNumber } = req.body || {};
@@ -61,6 +62,21 @@ exports.activate = async (req, res) => {
   res.status(200).send({
     message: "Account activated."
   })
+}
+
+exports.logout = async (req, res) => {
+  const token = req.params.token;
+  jwt.verify(token, config.secret, (err, decoded) => {
+    if (err) {
+      res.status(401).send({
+        message: "Unauthorized!"
+      });
+      return;
+    }
+
+    cache.set(token, true, 60 * 60 * 24)
+    res.send({ message: "Token deleted!" })
+  });
 }
 
 
