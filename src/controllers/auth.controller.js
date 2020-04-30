@@ -130,3 +130,30 @@ exports.login = async (req, res) => {
     accessToken: token
   });
 };
+
+
+exports.confirm = async (req, res) => {
+  const key = req.params.key;
+  if (key == null)
+    return res.status(404).send({ message: "Key has not been given." })
+
+  const value = cache.get(key)
+  if (value == null)
+    return res.status(400).send({ message: "Invalid link or operation already expired." })
+
+  if (value.operation == "changePassword") {
+    const user = await User.findOne({
+      where: {
+        id: value.id
+      }
+    })
+
+    if (user == null) {
+      return res.status(404).send({ message: "User does not exists" });
+    }
+    user.password = value.hash;
+
+    await user.save();
+    res.send({ message: "Password has been changed." });
+  }
+}

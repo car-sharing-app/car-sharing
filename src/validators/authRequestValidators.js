@@ -1,4 +1,5 @@
 const db = require('../models')
+const isNotValidPassword = require('./passwordValidation')
 const User = db.user;
 
 exports.registerValidation = (username, email, password, phoneNumber) => {
@@ -17,8 +18,7 @@ exports.registerValidation = (username, email, password, phoneNumber) => {
         })
     }
 
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{7,}$/
-    if (password == null || !passwordRegex.test(password)) {
+    if (isNotValidPassword(password)) {
         errors.push({
             message: "Failed! Password has not been given or does not \
             contain minimum seven characters, at least one letter and one number!"
