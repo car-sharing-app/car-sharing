@@ -4,6 +4,7 @@ const db = require('../models')
 const Profile = db.profile
 const Address = db.address
 const DrivingLicense = db.drivingLicense
+const User = db.user;
 exports.create = async (req, res) => {
     const userId = req.identity.id;
     const { aboutMe, drivingLicense, address } = req.body || {}
@@ -107,3 +108,34 @@ exports.update = async (req, res) => {
 
     res.send({ message: "Profile has been updated successfully." })
 }
+
+exports.get = async (req, res) => {
+    const userId = req.identity.id;
+    const user = await User.findOne({
+        where: {
+            id: userId
+        },
+        include: [Address, DrivingLicense, Profile]
+    })
+    res.send({
+        address: {
+            addressLine1: user.addrese.dataValues.addressLine1,
+            addressLine2: user.addrese.dataValues.addressLine2,
+            city: user.addrese.dataValues.city,
+            zipCode: user.addrese.dataValues.zipCode
+        },
+        aboutMe: user.profile.dataValues.aboutMe,
+        drivingLicense: {
+            firstName: user["driving_license"].dataValues.firstName,
+            lastName: user["driving_license"].dataValues.lastName,
+            middleName: user["driving_license"].dataValues.middleName,
+            birthDate: user["driving_license"].dataValues.birthDate,
+            birthPlace: user["driving_license"].dataValues.birthPlace,
+            validFrom: user["driving_license"].dataValues.validFrom,
+            validTo: user["driving_license"].dataValues.validTo,
+            drivingLicenseNumber: user["driving_license"].dataValues.drivingLicenseNumber,
+            pesel: user["driving_license"].dataValues.pesel,
+        }
+    })
+}
+

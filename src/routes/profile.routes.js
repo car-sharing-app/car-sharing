@@ -9,5 +9,6 @@ router.use(authJwt.isUser)
 
 router.post("/me", controller.create)
 router.put("/me", controller.update)
+router.get("/me", controller.get)
 
 module.exports = router;
