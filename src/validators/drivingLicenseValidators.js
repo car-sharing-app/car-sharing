@@ -67,14 +67,14 @@ exports.drivingLicenseValidation = (drivingLicense) => {
 
 }
 
-exports.drivingLicenseValidationAsync = async (drivingLicense) => {
+exports.drivingLicenseValidationAsync = async (drivingLicense, userId) => {
     const errors = []
     const drivingLicenseWithGivenNumber = await DrivingLicense.findOne({
         where: {
             drivingLicenseNumber: drivingLicense.drivingLicenseNumber
         }
     })
-    if (drivingLicenseWithGivenNumber) {
+    if (drivingLicenseWithGivenNumber && drivingLicenseWithGivenNumber.userId != userId) {
         errors.push({ message: "Given driving license is already in database." })
     }
 
@@ -83,7 +83,7 @@ exports.drivingLicenseValidationAsync = async (drivingLicense) => {
             pesel: drivingLicense.pesel
         }
     })
-    if (drivingLicenseWithGivenPesel) {
+    if (drivingLicenseWithGivenPesel && drivingLicenseWithGivenPesel.userId != userId) {
         errors.push({ message: "Given pesel is already in database." })
     }
     return errors;

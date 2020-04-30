@@ -8,5 +8,6 @@ router.use(authJwt.verifyToken)
 router.use(authJwt.isUser)
 
 router.post("/me", controller.create)
+router.put("/me", controller.update)
 
 module.exports = router;
