@@ -1,6 +1,7 @@
 const db = require('../models')
 const isNotValidPassword = require('./passwordValidation')
 const isNotValidEmail = require('./emailValidation')
+const isNotValidPhoneNumber = require('./phoneNumberValidation')
 const User = db.user;
 
 exports.registerValidation = (username, email, password, phoneNumber) => {
@@ -24,8 +25,7 @@ exports.registerValidation = (username, email, password, phoneNumber) => {
         })
     }
 
-    const phoneNumberRegex = /^\d{9}$/;
-    if (phoneNumber == null || !phoneNumberRegex.test(phoneNumber)) {
+    if (isNotValidPhoneNumber(phoneNumber)) {
         errors.push({
             message: "Failed! Phone has not been given or it's incorrect!"
         })

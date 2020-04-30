@@ -15,7 +15,7 @@ exports.register = async (req, res) => {
     errors = await registerValidationAsync(username, email, phoneNumber)
   }
   if (errors.length > 0) {
-    res.status(400).send({ errors });
+    return res.status(400).send({ errors });
   }
 
   const hash = bcrypt.hashSync(password, 8);

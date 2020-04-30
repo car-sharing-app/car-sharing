@@ -1,5 +1,6 @@
 const isNotValidPassword = require('../validators/passwordValidation')
 const isNotValidEmail = require('../validators/emailValidation')
+const isNotVaildPhoneNumber = require('../validators/phoneNumberValidation')
 const db = require('../models')
 const bcrypt = require('bcryptjs')
 const User = db.user
@@ -98,5 +99,48 @@ exports.changeEmail = async (req, res) => {
   cache.set(key, { operation: "changeEmail", email, id: user.id }, 60 * 60)
   emailService(email, "Confirm changing email (car-sharing).", "<a href='" + config.URL + "auth/confirm/" + key + "'>Click to confirm new email address.</a>")
   res.send({ message: "Check your email to confirm changing email address." })
+}
+
+exports.changePhoneNumber = async (req, res) => {
+  const userId = req.identity.id;
+  const { phoneNumber } = req.body || {};
+  const errors = [];
+
+  if (isNotVaildPhoneNumber(phoneNumber)) {
+    errors.push({
+      message: "Failed! Phone has not been given or it's incorrect!"
+    })
+  }
+  if (errors.length > 0) {
+    res.status(400).send({ errors });
+    return;
+  }
+  var existingUserWithGivenPhoneNumber = await User.findOne({
+    where: { phoneNumber: phoneNumber }
+  })
+  if (existingUserWithGivenPhoneNumber != null) {
+    errors.push({
+      message: "User with given phone number already exists."
+    })
+  }
+  if (errors.length > 0) {
+    res.status(400).send({ errors });
+    return;
+  }
+
+  const user = await User.findOne({
+    where: {
+      id: userId
+    }
+  })
+  if (user == null) {
+    errors.push({ message: "User does not exists." })
+    res.status(400).send({ errors })
+    return;
+  }
+
+  user.phoneNumber = phoneNumber;
+  await user.save();
+  res.send({ message: "Phone number has been changed successfully." })
 }
 
