@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const config = require("../config/auth.config.js");
 const db = require("../models");
 const { cache } = require("../services/cache")
-verifyToken = (req, res, next) => {
+const verifyToken = (req, res, next) => {
   const authorizationValue = req.header("Authorization");
 
   if (!authorizationValue) {
@@ -30,7 +30,17 @@ verifyToken = (req, res, next) => {
   });
 };
 
+const isUser = (req, res, next) => {
+  const role = req.identity.role
+  if (role != 'user') {
+    res.status(401).send({ message: "Unauthorized" })
+    return;
+  }
+  next();
+}
+
 const authJwt = {
-  verifyToken: verifyToken
+  verifyToken: verifyToken,
+  isUser: isUser,
 };
 module.exports = authJwt;

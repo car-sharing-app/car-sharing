@@ -144,3 +144,19 @@ exports.changePhoneNumber = async (req, res) => {
   res.send({ message: "Phone number has been changed successfully." })
 }
 
+exports.get = async (req, res) => {
+  const userId = req.identity.id;
+  const user = await User.findOne({
+    where: {
+      id: userId
+    }
+  })
+  if (user == null) return res.status(400).send({ message: 'User not found' })
+  res.send({
+    username: user.username,
+    email: user.email,
+    phoneNumber: user.phoneNumber,
+    role: req.identity.role
+  })
+}
+

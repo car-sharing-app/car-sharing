@@ -9,5 +9,6 @@ router.use(authJwt.verifyToken)
 router.put("/me/password", controller.changePassword);
 router.put("/me/email", controller.changeEmail);
 router.put("/me/phone", controller.changePhoneNumber);
+router.get("/me", controller.get)
 
 module.exports = router;
