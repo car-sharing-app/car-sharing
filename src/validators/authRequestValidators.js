@@ -1,5 +1,6 @@
 const db = require('../models')
 const isNotValidPassword = require('./passwordValidation')
+const isNotValidEmail = require('./emailValidation')
 const User = db.user;
 
 exports.registerValidation = (username, email, password, phoneNumber) => {
@@ -10,9 +11,7 @@ exports.registerValidation = (username, email, password, phoneNumber) => {
         })
     }
 
-    const emailRegex =
-        /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    if (email == null || !emailRegex.test(email)) {
+    if (isNotValidEmail(email)) {
         errors.push({
             message: "Failed! Email has not been given or is not valid!"
         })

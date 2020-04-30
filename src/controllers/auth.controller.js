@@ -156,4 +156,18 @@ exports.confirm = async (req, res) => {
     await user.save();
     res.send({ message: "Password has been changed." });
   }
+  else if (value.operation == "changeEmail") {
+    const user = await User.findOne({
+      where: {
+        id: value.id
+      }
+    })
+
+    if (user == null) {
+      return res.status(404).send({ message: "User does not exists" });
+    }
+    user.email = value.email;
+    await user.save();
+    res.send({ message: "Email has been changed." });
+  }
 }

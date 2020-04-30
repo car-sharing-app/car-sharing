@@ -7,5 +7,6 @@ const router = express.Router();
 router.use(authJwt.verifyToken)
 
 router.put("/me/password", controller.changePassword);
+router.put("/me/email", controller.changeEmail);
 
 module.exports = router;

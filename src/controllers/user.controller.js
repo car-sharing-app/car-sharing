@@ -1,4 +1,5 @@
 const isNotValidPassword = require('../validators/passwordValidation')
+const isNotValidEmail = require('../validators/emailValidation')
 const db = require('../models')
 const bcrypt = require('bcryptjs')
 const User = db.user
@@ -46,4 +47,56 @@ exports.changePassword = async (req, res) => {
   emailService(user.email, "Confirm changing password (car-sharing).", "<a href='" + config.URL + "auth/confirm/" + key + "'>Click to confirm changing password.</a>")
   res.send({ message: "Check your email to confirm changing password." })
 };
+
+exports.changeEmail = async (req, res) => {
+  const userId = req.identity.id;
+  const { password, email } = req.body || {};
+  const errors = [];
+  if (isNotValidEmail(email)) {
+    errors.push({
+      message: "Email has not been given or is invalid!"
+    })
+  }
+
+  if (errors.length > 0) {
+    res.status(400).send({ errors });
+    return;
+  }
+  var existingUserWithGivenEmail = await User.findOne({
+    where: { email: email }
+  })
+  if (existingUserWithGivenEmail != null) {
+    errors.push({
+      message: "User with given email already exists."
+    })
+  }
+  if (errors.length > 0) {
+    res.status(400).send({ errors });
+    return;
+  }
+
+  const user = await User.findOne({
+    where: {
+      id: userId
+    }
+  })
+  if (user == null) {
+    errors.push({ message: "User does not exists." })
+    res.status(400).send({ errors })
+    return;
+  }
+
+  const passwordIsValid = bcrypt.compareSync(
+    password,
+    user.password
+  );
+  if (!passwordIsValid) {
+    res.status(401).send({ message: "Unauthorized!" })
+  }
+  const encodedEmail = encodeURI(email)
+  const key = 'changeEmail-' + encodedEmail;
+  cache.set(key, { operation: "changeEmail", email, id: user.id }, 60 * 60)
+  emailService(email, "Confirm changing email (car-sharing).", "<a href='" + config.URL + "auth/confirm/" + key + "'>Click to confirm new email address.</a>")
+  res.send({ message: "Check your email to confirm changing email address." })
+}
 
