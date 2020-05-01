@@ -26,6 +26,7 @@ const verifyToken = (req, res, next) => {
       });
     }
     req.identity = decoded;
+    req.identity.token = token;
     next();
   });
 };

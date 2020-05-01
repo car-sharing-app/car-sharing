@@ -160,3 +160,14 @@ exports.get = async (req, res) => {
   })
 }
 
+exports.delete = async (req, res) => {
+  const userId = req.identity.id;
+  const user = await User.findOne({ where: { id: userId } });
+  if (user == null) {
+    return res.status(400).send({ message: 'User not found' });
+  }
+  cache.set(req.identity.token, true, 60 * 60 * 24);
+  await user.destroy();
+  res.send({ message: "User has been deleted." });
+}
+
