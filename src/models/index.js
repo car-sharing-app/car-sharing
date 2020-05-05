@@ -22,6 +22,7 @@ db.role = require("../models/role.model.js")(sequelize, Sequelize);
 db.address = require("../models/address.model.js")(sequelize, Sequelize);
 db.drivingLicense = require("../models/drivingLicense.model.js")(sequelize, Sequelize)
 db.profile = require("../models/profile.model.js")(sequelize, Sequelize)
+db.carCategory = require("../models/carCategory.model.js")(sequelize, Sequelize)
 
 db.role.hasMany(db.user, {
   foreignKey: "roleId",
