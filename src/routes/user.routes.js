@@ -9,6 +9,7 @@ adminRouter.use(authJwt.isAdmin);
 
 adminRouter.post("/", controller.addAdmin);
 adminRouter.delete("/:userId", controller.deleteAdmin);
+adminRouter.get("/page/:pageNumber", controller.getUsers)
 
 router.use(authJwt.verifyToken)
 

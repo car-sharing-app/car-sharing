@@ -3,7 +3,8 @@ const isNotValidEmail = require('../validators/emailValidation')
 const isNotVaildPhoneNumber = require('../validators/phoneNumberValidation')
 const db = require('../models')
 const bcrypt = require('bcryptjs')
-const User = db.user
+const User = db.user;
+const Role = db.role;
 const { cache } = require('../services/cache')
 const emailService = require('../services/emailService')
 const config = require('../config/appUrl.config')
@@ -216,4 +217,36 @@ exports.deleteAdmin = async (req, res) => {
 
   await userToDelete.destroy();
   res.status(200).send({ message: "User has been deleted." });
+}
+
+exports.getUsers = async (req, res) => {
+  const pageNumber = req.params.pageNumber;
+  if (pageNumber <= 0) {
+    res.status(400).send({ message: "Invalid page number" });
+  }
+
+  const usersAmount = await User.count();
+  const pages = Math.ceil(usersAmount / 10)
+
+  const users = await User.findAll({
+    include: [Role],
+    offset: (pageNumber - 1) * 10,
+    limit: 10
+  })
+
+  res.send({
+    pageNumber: pageNumber,
+    allPages: pages,
+    allUsers: usersAmount,
+    users: users.map(x => {
+      return {
+        id: x.id,
+        username: x.username,
+        email: x.email,
+        phoneNumber: x.phoneNumber,
+        activeAccount: x.activeAccount,
+        role: x.role.dataValues.name
+      }
+    })
+  })
 }
