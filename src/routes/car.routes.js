@@ -6,5 +6,6 @@ const router = express.Router();
 router.use(verifyToken)
 router.use(isAdmin)
 router.get("/", controller.get)
+router.post("/", controller.add)
 
 module.exports = router;
