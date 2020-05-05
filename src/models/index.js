@@ -24,6 +24,7 @@ db.drivingLicense = require("../models/drivingLicense.model.js")(sequelize, Sequ
 db.profile = require("../models/profile.model.js")(sequelize, Sequelize)
 db.carCategory = require("../models/carCategory.model.js")(sequelize, Sequelize)
 db.fuel = require("../models/fuel.model.js")(sequelize, Sequelize)
+db.equipment = require("../models/equipment.model.js")(sequelize, Sequelize)
 
 db.role.hasMany(db.user, {
   foreignKey: "roleId",

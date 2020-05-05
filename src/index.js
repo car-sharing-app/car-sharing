@@ -17,6 +17,7 @@ const Role = db.role;
 const User = db.user;
 const CarCategory = db.carCategory;
 const Fuel = db.fuel;
+const Equipment = db.equipment;
 
 db.sequelize.sync();
 
@@ -36,6 +37,8 @@ const carCategoryRouter = require('./routes/carCategory.routes')
 app.use('/car-category', carCategoryRouter);
 const fuelRouter = require('./routes/fuel.routes')
 app.use('/fuel', fuelRouter);
+const equipment = require('./routes/equipment.routes')
+app.use('/equipment', equipment);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
@@ -110,6 +113,39 @@ function initial() {
     Fuel.create({
         id: 4,
         name: "electric"
+    })
+
+    Equipment.create({
+        id: 1,
+        name: "air conditioning"
+    })
+    Equipment.create({
+        id: 2,
+        name: "ABS"
+    })
+    Equipment.create({
+        id: 3,
+        name: "central lock"
+    })
+    Equipment.create({
+        id: 4,
+        name: "airbags"
+    })
+    Equipment.create({
+        id: 5,
+        name: "audio system"
+    })
+    Equipment.create({
+        id: 6,
+        name: "bluetooth"
+    })
+    Equipment.create({
+        id: 7,
+        name: "cruise control"
+    })
+    Equipment.create({
+        id: 8,
+        name: "GPS navigation"
     })
 }
 initial();
