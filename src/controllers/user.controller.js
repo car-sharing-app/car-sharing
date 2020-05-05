@@ -7,6 +7,7 @@ const User = db.user
 const { cache } = require('../services/cache')
 const emailService = require('../services/emailService')
 const config = require('../config/appUrl.config')
+const { registerValidation, registerValidationAsync } = require('../validators/authRequestValidators')
 
 exports.changePassword = async (req, res) => {
   const userId = req.identity.id;
@@ -169,5 +170,35 @@ exports.delete = async (req, res) => {
   cache.set(req.identity.token, true, 60 * 60 * 24);
   await user.destroy();
   res.send({ message: "User has been deleted." });
+}
+
+exports.addAdmin = async (req, res) => {
+  const { username, email, password, phoneNumber } = req.body || {};
+  let errors = registerValidation(username, email, password, phoneNumber);
+  if (errors.length > 0) {
+    res.status(400).send({ errors })
+    return;
+  }
+  errors = errors.concat(await registerValidationAsync(username, email, phoneNumber))
+  if (errors.length > 0) {
+    res.status(400).send({ errors })
+    return;
+  }
+
+  const hash = bcrypt.hashSync(password, 8)
+
+
+  const user = await User.create({
+    username: username,
+    email: email,
+    password: hash,
+    phoneNumber: phoneNumber,
+    roleId: 2,
+    activeAccount: true
+  })
+
+  res.status(200).send({
+    resourceId: user.id
+  })
 }
 

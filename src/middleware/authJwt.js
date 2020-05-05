@@ -40,8 +40,18 @@ const isUser = (req, res, next) => {
   next();
 }
 
+const isAdmin = (req, res, next) => {
+  const role = req.identity.role;
+  if (role != 'admin') {
+    res.status(401).send({ message: "Unauthorized" })
+    return;
+  }
+  next();
+}
+
 const authJwt = {
   verifyToken: verifyToken,
   isUser: isUser,
+  isAdmin: isAdmin
 };
 module.exports = authJwt;

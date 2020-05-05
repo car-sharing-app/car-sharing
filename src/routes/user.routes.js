@@ -3,6 +3,11 @@ const controller = require("../controllers/user.controller");
 
 const express = require("express")
 const router = express.Router();
+const adminRouter = express.Router();
+adminRouter.use(authJwt.verifyToken);
+adminRouter.use(authJwt.isAdmin);
+
+adminRouter.post("/", controller.addAdmin)
 
 router.use(authJwt.verifyToken)
 
@@ -12,4 +17,7 @@ router.put("/me/phone", controller.changePhoneNumber);
 router.get("/me", controller.get);
 router.delete("/me", controller.delete);
 
-module.exports = router;
+module.exports = {
+    router: router,
+    adminRouter: adminRouter
+};
