@@ -25,6 +25,7 @@ db.profile = require("../models/profile.model.js")(sequelize, Sequelize)
 db.carCategory = require("../models/carCategory.model.js")(sequelize, Sequelize)
 db.fuel = require("../models/fuel.model.js")(sequelize, Sequelize)
 db.equipment = require("../models/equipment.model.js")(sequelize, Sequelize)
+db.car = require("../models/car.model.js")(sequelize, Sequelize)
 
 db.role.hasMany(db.user, {
   foreignKey: "roleId",
@@ -65,6 +66,28 @@ db.profile.belongsTo(db.user, {
   targetKey: "id"
 })
 
+db.carCategory.hasMany(db.car, {
+  foreignKey: "carCategoryId",
+  sourceKey: "id"
+})
+
+db.car.belongsTo(db.carCategory, {
+  foreignKey: "carCategoryId",
+  targetKey: "id"
+})
+
+db.fuel.hasMany(db.car, {
+  foreignKey: "fuelId",
+  sourceKey: "id"
+})
+
+db.car.belongsTo(db.fuel, {
+  foreignKey: "fuelId",
+  targetKey: "id"
+})
+
+db.equipment.belongsToMany(db.car, { through: 'car_equipment' });
+db.car.belongsToMany(db.equipment, { through: 'car_equipment' });
 
 db.ROLES = ["user", "admin"];
 

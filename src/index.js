@@ -37,8 +37,10 @@ const carCategoryRouter = require('./routes/carCategory.routes')
 app.use('/car-category', carCategoryRouter);
 const fuelRouter = require('./routes/fuel.routes')
 app.use('/fuel', fuelRouter);
-const equipment = require('./routes/equipment.routes')
-app.use('/equipment', equipment);
+const equipmentRouter = require('./routes/equipment.routes')
+app.use('/equipment', equipmentRouter);
+const carRouter = require('./routes/car.routes')
+app.use('/car', carRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
