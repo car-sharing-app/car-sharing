@@ -5,6 +5,7 @@ const Profile = db.profile
 const Address = db.address
 const DrivingLicense = db.drivingLicense
 const User = db.user;
+const Role = db.role;
 exports.create = async (req, res) => {
     const userId = req.identity.id;
     const { aboutMe, drivingLicense, address } = req.body || {}
@@ -115,7 +116,7 @@ exports.get = async (req, res) => {
         where: {
             id: userId
         },
-        include: [Address, DrivingLicense, Profile]
+        include: [Address, DrivingLicense, Profile, Role]
     })
     res.send({
         address: {
@@ -135,7 +136,12 @@ exports.get = async (req, res) => {
             validTo: user["driving_license"].dataValues.validTo,
             drivingLicenseNumber: user["driving_license"].dataValues.drivingLicenseNumber,
             pesel: user["driving_license"].dataValues.pesel,
-        }
+        },
+        username: user.username,
+        id: user.id,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        role: user.role.dataValues.name
     })
 }
 

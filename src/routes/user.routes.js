@@ -17,6 +17,7 @@ router.put("/me/password", controller.changePassword);
 router.put("/me/email", controller.changeEmail);
 router.put("/me/phone", controller.changePhoneNumber);
 router.get("/me", controller.get);
+router.get("/:id", controller.getUser)
 router.delete("/me", controller.delete);
 
 module.exports = {

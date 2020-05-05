@@ -250,3 +250,30 @@ exports.getUsers = async (req, res) => {
     })
   })
 }
+
+exports.getUser = async (req, res) => {
+  const userId = req.params.id;
+  if (userId <= 0) {
+    res.status(400).send({ message: "Invalid id." })
+    return;
+  }
+
+  const user = await User.findOne({
+    include: [Role],
+    where: {
+      id: userId
+    }
+  })
+  if (user == null) {
+    res.status(404).send({ message: "User does not exists." })
+    return;
+  }
+  res.send({
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    phoneNumber: user.phoneNumber,
+    activeAccount: user.activeAccount,
+    role: user.role.dataValues.name
+  })
+}
