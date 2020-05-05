@@ -7,7 +7,8 @@ const adminRouter = express.Router();
 adminRouter.use(authJwt.verifyToken);
 adminRouter.use(authJwt.isAdmin);
 
-adminRouter.post("/", controller.addAdmin)
+adminRouter.post("/", controller.addAdmin);
+adminRouter.delete("/:userId", controller.deleteAdmin);
 
 router.use(authJwt.verifyToken)
 

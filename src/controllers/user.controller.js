@@ -202,3 +202,18 @@ exports.addAdmin = async (req, res) => {
   })
 }
 
+exports.deleteAdmin = async (req, res) => {
+  const userIdToDelete = req.params.userId;
+  const userToDelete = await User.findOne({
+    where: {
+      id: userIdToDelete
+    }
+  })
+  if (userToDelete == null) {
+    res.status(404).send({ message: "User does not exists." })
+    return;
+  }
+
+  await userToDelete.destroy();
+  res.status(200).send({ message: "User has been deleted." });
+}
