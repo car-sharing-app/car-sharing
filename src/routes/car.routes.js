@@ -7,5 +7,6 @@ router.use(verifyToken)
 router.use(isAdmin)
 router.get("/", controller.get)
 router.post("/", controller.add)
+router.delete("/:id", controller.delete)
 
 module.exports = router;

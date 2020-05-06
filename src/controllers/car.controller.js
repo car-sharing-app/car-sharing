@@ -42,3 +42,14 @@ exports.add = async (req, res) => {
         resourceId: newCar.id
     })
 }
+
+exports.delete = async (req, res) => {
+    const carId = req.params.id;
+    const car = await Car.findOne({ where: { id: carId } });
+    if (car == null) {
+        res.status(404).send({ message: "Car does not exists." })
+        return;
+    }
+    await car.destroy();
+    res.send({ message: "Car has been removed." })
+}
