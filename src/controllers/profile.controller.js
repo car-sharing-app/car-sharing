@@ -5,6 +5,7 @@ const Profile = db.profile
 const Address = db.address
 const DrivingLicense = db.drivingLicense
 const User = db.user;
+const Role = db.role;
 exports.create = async (req, res) => {
     const userId = req.identity.id;
     const { aboutMe, drivingLicense, address } = req.body || {}
@@ -22,6 +23,12 @@ exports.create = async (req, res) => {
     }
 
     let theAboutMe = aboutMe == null ? "" : aboutMe
+
+    const user = await User.findOne({ where: { id: userId } })
+    if (user == null) {
+        res.status(404).send({ message: "User not found." });
+        return;
+    }
 
     await Profile.create({
         aboutMe: theAboutMe,
@@ -41,13 +48,15 @@ exports.create = async (req, res) => {
         userId: userId
     })
 
-    await Address.create({
+    const createdAddress = await Address.create({
         addressLine1: req.body.address.addressLine1,
         addressLine2: req.body.address.addressLine2,
         city: req.body.address.city,
-        zipCode: req.body.address.zipCode,
-        userId: userId
+        zipCode: req.body.address.zipCode
     })
+
+    user.addressId = createdAddress.id;
+    await user.save();
 
     res.send({ message: "Profile has been created successfully." })
 }
@@ -69,6 +78,11 @@ exports.update = async (req, res) => {
     }
 
     let theAboutMe = aboutMe == null ? "" : aboutMe
+
+    const user = await User.findOne({ where: { id: userId } });
+    if (user == null) {
+        res.status(404).send({ message: "User does not exists." })
+    }
 
     const profile = await Profile.findOne({
         where: {
@@ -95,16 +109,12 @@ exports.update = async (req, res) => {
     await drivingLicenseFromDB.save();
 
 
-    const addressFromDb = await Address.findOne({
-        where: {
-            userId: userId,
-        }
-    })
+    const addressFromDb = await Address.findOne({ where: { id: user.addressId } })
     addressFromDb.addressLine1 = req.body.address.addressLine1
     addressFromDb.addressLine2 = req.body.address.addressLine2
     addressFromDb.city = req.body.address.city
     addressFromDb.zipCode = req.body.address.zipCode
-    await drivingLicenseFromDB.save();
+    await addressFromDb.save();
 
     res.send({ message: "Profile has been updated successfully." })
 }
@@ -115,7 +125,7 @@ exports.get = async (req, res) => {
         where: {
             id: userId
         },
-        include: [Address, DrivingLicense, Profile]
+        include: [Address, DrivingLicense, Profile, Role]
     })
     res.send({
         address: {
@@ -135,7 +145,12 @@ exports.get = async (req, res) => {
             validTo: user["driving_license"].dataValues.validTo,
             drivingLicenseNumber: user["driving_license"].dataValues.drivingLicenseNumber,
             pesel: user["driving_license"].dataValues.pesel,
-        }
+        },
+        username: user.username,
+        id: user.id,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        role: user.role.dataValues.name
     })
 }
 

@@ -3,10 +3,12 @@ const isNotValidEmail = require('../validators/emailValidation')
 const isNotVaildPhoneNumber = require('../validators/phoneNumberValidation')
 const db = require('../models')
 const bcrypt = require('bcryptjs')
-const User = db.user
+const User = db.user;
+const Role = db.role;
 const { cache } = require('../services/cache')
 const emailService = require('../services/emailService')
 const config = require('../config/appUrl.config')
+const { registerValidation, registerValidationAsync } = require('../validators/authRequestValidators')
 
 exports.changePassword = async (req, res) => {
   const userId = req.identity.id;
@@ -167,7 +169,127 @@ exports.delete = async (req, res) => {
     return res.status(400).send({ message: 'User not found' });
   }
   cache.set(req.identity.token, true, 60 * 60 * 24);
-  await user.destroy();
+  const addressId = user.addressId;
+  if (addressId != null) {
+    const address = await Address.findOne({ where: { id: addressId } });
+    await user.destroy();
+    await address.destroy();
+  }
+  else {
+    await user.destroy();
+  }
   res.send({ message: "User has been deleted." });
 }
 
+exports.addAdmin = async (req, res) => {
+  const { username, email, password, phoneNumber } = req.body || {};
+  let errors = registerValidation(username, email, password, phoneNumber);
+  if (errors.length > 0) {
+    res.status(400).send({ errors })
+    return;
+  }
+  errors = errors.concat(await registerValidationAsync(username, email, phoneNumber))
+  if (errors.length > 0) {
+    res.status(400).send({ errors })
+    return;
+  }
+
+  const hash = bcrypt.hashSync(password, 8)
+
+
+  const user = await User.create({
+    username: username,
+    email: email,
+    password: hash,
+    phoneNumber: phoneNumber,
+    roleId: 2,
+    activeAccount: true
+  })
+
+  res.status(200).send({
+    resourceId: user.id
+  })
+}
+
+exports.deleteAdmin = async (req, res) => {
+  const userIdToDelete = req.params.userId;
+  const userToDelete = await User.findOne({
+    where: {
+      id: userIdToDelete
+    }
+  })
+  if (userToDelete == null) {
+    res.status(404).send({ message: "User does not exists." })
+    return;
+  }
+  const addressId = userToDelete.addressId;
+  if (addressId != null) {
+    const address = await Address.findOne({ where: { id: addressId } });
+    await userToDelete.destroy();
+    await address.destroy();
+  }
+  else {
+    await userToDelete.destroy();
+  }
+
+  res.status(200).send({ message: "User has been deleted." });
+}
+
+exports.getUsers = async (req, res) => {
+  const pageNumber = req.params.pageNumber;
+  if (pageNumber <= 0) {
+    res.status(400).send({ message: "Invalid page number" });
+  }
+
+  const usersAmount = await User.count();
+  const pages = Math.ceil(usersAmount / 10)
+
+  const users = await User.findAll({
+    include: [Role],
+    offset: (pageNumber - 1) * 10,
+    limit: 10
+  })
+
+  res.send({
+    pageNumber: pageNumber,
+    allPages: pages,
+    allUsers: usersAmount,
+    users: users.map(x => {
+      return {
+        id: x.id,
+        username: x.username,
+        email: x.email,
+        phoneNumber: x.phoneNumber,
+        activeAccount: x.activeAccount,
+        role: x.role.dataValues.name
+      }
+    })
+  })
+}
+
+exports.getUser = async (req, res) => {
+  const userId = req.params.id;
+  if (userId <= 0) {
+    res.status(400).send({ message: "Invalid id." })
+    return;
+  }
+
+  const user = await User.findOne({
+    include: [Role],
+    where: {
+      id: userId
+    }
+  })
+  if (user == null) {
+    res.status(404).send({ message: "User does not exists." })
+    return;
+  }
+  res.send({
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    phoneNumber: user.phoneNumber,
+    activeAccount: user.activeAccount,
+    role: user.role.dataValues.name
+  })
+}
