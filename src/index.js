@@ -62,6 +62,7 @@ function initial() {
 
     const adminConfig = require('./config/defaultAdminConfig')
     User.create({
+        id: 1,
         username: adminConfig.username,
         email: adminConfig.email,
         password: bcrypt.hashSync(adminConfig.password, 8),

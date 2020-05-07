@@ -39,3 +39,17 @@ exports.add = async (req, res) => {
 
     res.send({ resourceId: carRental.id })
 }
+
+exports.remove = async (req, res) => {
+    const carRentalId = req.params.id;
+    const carRental = await CarRental.findOne({ where: { id: carRentalId } })
+    if (carRental == null) {
+        res.status(404).send({ message: "Car rental not found." })
+        return;
+    }
+    const addressId = carRental.addressId;
+    const address = await Address.findOne({ where: { id: addressId } });
+    await carRental.destroy();
+    await address.destroy();
+    res.send({ message: "Car rental deleted." })
+}

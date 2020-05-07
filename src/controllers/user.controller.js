@@ -169,7 +169,15 @@ exports.delete = async (req, res) => {
     return res.status(400).send({ message: 'User not found' });
   }
   cache.set(req.identity.token, true, 60 * 60 * 24);
-  await user.destroy();
+  const addressId = user.addressId;
+  if (addressId != null) {
+    const address = await Address.findOne({ where: { id: addressId } });
+    await user.destroy();
+    await address.destroy();
+  }
+  else {
+    await user.destroy();
+  }
   res.send({ message: "User has been deleted." });
 }
 
@@ -214,8 +222,16 @@ exports.deleteAdmin = async (req, res) => {
     res.status(404).send({ message: "User does not exists." })
     return;
   }
+  const addressId = userToDelete.addressId;
+  if (addressId != null) {
+    const address = await Address.findOne({ where: { id: addressId } });
+    await userToDelete.destroy();
+    await address.destroy();
+  }
+  else {
+    await userToDelete.destroy();
+  }
 
-  await userToDelete.destroy();
   res.status(200).send({ message: "User has been deleted." });
 }
 
