@@ -1,10 +1,16 @@
 const db = require('../models')
 const { addressValidation } = require('../validators/addressValidation')
-
+const { QueryTypes } = require('sequelize');
+const sequelize = require('sequelize');
 const CarRental = db.carRental
 const Address = db.address;
 const Car = db.car;
+const Equipment = db.equipment;
+const Fuel = db.fuel;
+const CarCategory = db.carCategory;
+
 exports.add = async (req, res) => {
+    console.log("test")
     const { address, prizePerDay, carId } = req.body || {}
     const errors = addressValidation(address)
     if (prizePerDay <= 0) {
@@ -52,4 +58,62 @@ exports.remove = async (req, res) => {
     await carRental.destroy();
     await address.destroy();
     res.send({ message: "Car rental deleted." })
+}
+
+exports.search = async (req, res) => {
+    const { rentFrom, rentTo, city, carCategoryId, fuelId, requiredEquipment, hasAutomaticTransmission, minPersonsNumber } = req.body || {}
+
+    const errors = [];
+
+    if (rentFrom == null || rentTo == null) {
+        errors.push({ message: "Rent from and rent to is required." });
+    }
+
+    if (new Date(rentFrom).getTime() > new Date(rentTo).getTime()) {
+        errors.push({ message: "Rent date from have to be before rent date to." })
+    }
+    if (new Date(rentFrom).getTime() < Date.now() || new Date(rentTo).getTime() < Date.now()) {
+        errors.push({ message: "Car cannot be rented in the past." })
+    }
+
+    let cars = await CarRental.findAll({
+        include: Address
+    })
+    if (city != null && city != "")
+        cars = cars.filter(car => car.addrese.city.includes(city))
+
+    cars = await Promise.all(cars.map(async carRental => {
+        const car = await Car.findOne({
+            where: {
+                id: carRental.carId
+            },
+            include: [CarCategory, Equipment, Fuel]
+        })
+        return { carRental, car };
+    }))
+
+    if (carCategoryId > 0)
+        cars = cars.filter(x => x.car.carCategoryId == carCategoryId)
+    if (fuelId > 0)
+        cars = cars.filter(x => x.car.fuelId == fuelId)
+    if (hasAutomaticTransmission !== null && hasAutomaticTransmission !== undefined)
+        cars = cars.filter(x => x.car.automaticTransmition == hasAutomaticTransmission)
+    if (minPersonsNumber > 0)
+        cars = cars.filter(x => x.car.personsNumber >= minPersonsNumber)
+    if (requiredEquipment != null && requiredEquipment.length != null)
+        cars = cars.filter(x => {
+            for (let i = 0; i < requiredEquipment.length; i++) {
+                if (x.car.equipment.findIndex(eq => eq.id == requiredEquipment[i]) < 0) {
+                    return false;
+                }
+            }
+            return true;
+        })
+    cars = cars.map(x => {
+        const carRental = JSON.parse(JSON.stringify(x.carRental));
+        carRental.car = x.car;
+        return carRental;
+    })
+
+    res.send(cars);
 }
