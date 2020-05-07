@@ -28,6 +28,28 @@ db.equipment = require("../models/equipment.model.js")(sequelize, Sequelize)
 db.car = require("../models/car.model.js")(sequelize, Sequelize)
 db.carRental = require("../models/carRental.model.js")(sequelize, Sequelize)
 
+db.address.hasOne(db.carRental, {
+  foreignKey: "addressId",
+  sourceKey: "id",
+  onDelete: 'CASCADE'
+})
+
+db.carRental.belongsTo(db.address, {
+  foreignKey: "addressId",
+  targetKey: "id",
+  onDelete: 'CASCADE'
+});
+
+db.car.hasMany(db.carRental, {
+  foreignKey: "carId",
+  sourceKey: "id",
+})
+
+db.carRental.belongsTo(db.car, {
+  foreignKey: "carId",
+  targetKey: "id",
+});
+
 db.role.hasMany(db.user, {
   foreignKey: "roleId",
   sourceKey: "id"

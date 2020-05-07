@@ -52,8 +52,7 @@ exports.create = async (req, res) => {
         addressLine1: req.body.address.addressLine1,
         addressLine2: req.body.address.addressLine2,
         city: req.body.address.city,
-        zipCode: req.body.address.zipCode,
-        userId: userId
+        zipCode: req.body.address.zipCode
     })
 
     user.addressId = createdAddress.id;
@@ -110,7 +109,7 @@ exports.update = async (req, res) => {
     await drivingLicenseFromDB.save();
 
 
-    const addressFromDb = await User.findOne({ where: { id: user.addressId } })
+    const addressFromDb = await Address.findOne({ where: { id: user.addressId } })
     addressFromDb.addressLine1 = req.body.address.addressLine1
     addressFromDb.addressLine2 = req.body.address.addressLine2
     addressFromDb.city = req.body.address.city
