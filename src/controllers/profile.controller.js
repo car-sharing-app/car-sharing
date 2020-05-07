@@ -24,6 +24,12 @@ exports.create = async (req, res) => {
 
     let theAboutMe = aboutMe == null ? "" : aboutMe
 
+    const user = await User.findOne({ where: { id: userId } })
+    if (user == null) {
+        res.status(404).send({ message: "User not found." });
+        return;
+    }
+
     await Profile.create({
         aboutMe: theAboutMe,
         userId: userId,
@@ -42,13 +48,16 @@ exports.create = async (req, res) => {
         userId: userId
     })
 
-    await Address.create({
+    const createdAddress = await Address.create({
         addressLine1: req.body.address.addressLine1,
         addressLine2: req.body.address.addressLine2,
         city: req.body.address.city,
         zipCode: req.body.address.zipCode,
         userId: userId
     })
+
+    user.addressId = createdAddress.id;
+    await user.save();
 
     res.send({ message: "Profile has been created successfully." })
 }
@@ -70,6 +79,11 @@ exports.update = async (req, res) => {
     }
 
     let theAboutMe = aboutMe == null ? "" : aboutMe
+
+    const user = await User.findOne({ where: { id: userId } });
+    if (user == null) {
+        res.status(404).send({ message: "User does not exists." })
+    }
 
     const profile = await Profile.findOne({
         where: {
@@ -96,16 +110,12 @@ exports.update = async (req, res) => {
     await drivingLicenseFromDB.save();
 
 
-    const addressFromDb = await Address.findOne({
-        where: {
-            userId: userId,
-        }
-    })
+    const addressFromDb = await User.findOne({ where: { id: user.addressId } })
     addressFromDb.addressLine1 = req.body.address.addressLine1
     addressFromDb.addressLine2 = req.body.address.addressLine2
     addressFromDb.city = req.body.address.city
     addressFromDb.zipCode = req.body.address.zipCode
-    await drivingLicenseFromDB.save();
+    await addressFromDb.save();
 
     res.send({ message: "Profile has been updated successfully." })
 }
