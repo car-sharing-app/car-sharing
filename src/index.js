@@ -44,6 +44,8 @@ app.use('/car', carRouter);
 const carRentalRouters = require('./routes/carRental.routes')
 app.use("/car-rental", carRentalRouters.router);
 app.use('/car-rental', carRentalRouters.adminRouter);
+const reservationRouter = require('./routes/reservation.routes')
+app.use('/reservation', reservationRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

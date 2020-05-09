@@ -27,6 +27,7 @@ db.fuel = require("../models/fuel.model.js")(sequelize, Sequelize)
 db.equipment = require("../models/equipment.model.js")(sequelize, Sequelize)
 db.car = require("../models/car.model.js")(sequelize, Sequelize)
 db.carRental = require("../models/carRental.model.js")(sequelize, Sequelize)
+db.reservation = require("../models/reservation.model.js")(sequelize, Sequelize)
 
 db.address.hasOne(db.carRental, {
   foreignKey: "addressId",
@@ -108,6 +109,28 @@ db.fuel.hasMany(db.car, {
 db.car.belongsTo(db.fuel, {
   foreignKey: "fuelId",
   targetKey: "id"
+})
+
+db.carRental.hasMany(db.reservation, {
+  foreignKey: "carRentalId",
+  sourceKey: "id"
+})
+
+db.reservation.belongsTo(db.carRental, {
+  foreignKey: "carRentalId",
+  targetKey: "id"
+})
+
+db.user.hasMany(db.reservation, {
+  foreignKey: "userId",
+  sourceKey: "id",
+  onDelete: 'CASCADE'
+})
+
+db.reservation.belongsTo(db.user, {
+  foreignKey: "userId",
+  targetKey: "id",
+  onDelete: 'CASCADE'
 })
 
 db.equipment.belongsToMany(db.car, { through: 'car_equipment' });

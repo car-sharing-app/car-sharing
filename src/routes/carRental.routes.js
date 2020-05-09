@@ -7,6 +7,7 @@ adminRouter.use(verifyToken)
 adminRouter.use(isAdmin)
 adminRouter.post("/", controller.add)
 adminRouter.delete("/:id", controller.remove)
+adminRouter.get("/", controller.get)
 
 exports.adminRouter = adminRouter;
 

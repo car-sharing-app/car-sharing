@@ -8,6 +8,8 @@ const Car = db.car;
 const Equipment = db.equipment;
 const Fuel = db.fuel;
 const CarCategory = db.carCategory;
+const Reservation = db.reservation;
+const canReservationBeDone = require('../validators/canReservationBeDone');
 
 exports.add = async (req, res) => {
     console.log("test")
@@ -77,8 +79,9 @@ exports.search = async (req, res) => {
     }
 
     let cars = await CarRental.findAll({
-        include: Address
+        include: [Address, Reservation]
     })
+    cars = cars.filter(car => canReservationBeDone(car.reservations, new Date(rentFrom), new Date(rentTo)))
     if (city != null && city != "")
         cars = cars.filter(car => car.addrese.city.includes(city))
 
@@ -116,4 +119,11 @@ exports.search = async (req, res) => {
     })
 
     res.send(cars);
+}
+
+exports.get = async (req, res) => {
+    let carRentals = await CarRental.findAll({
+        include: [Reservation, Car, Address]
+    })
+    res.send(carRentals)
 }
