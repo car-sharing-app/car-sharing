@@ -127,6 +127,9 @@ exports.get = async (req, res) => {
         },
         include: [Address, DrivingLicense, Profile, Role]
     })
+    if (user.addrese == null || user["driving_license"] == null || user.profile == null) {
+        return res.status(400).send({ message: "User profile has not been initialized." })
+    }
     res.send({
         address: {
             addressLine1: user.addrese.dataValues.addressLine1,
