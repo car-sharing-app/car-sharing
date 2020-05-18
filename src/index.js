@@ -18,8 +18,9 @@ const User = db.user;
 const CarCategory = db.carCategory;
 const Fuel = db.fuel;
 const Equipment = db.equipment;
-
-db.sequelize.sync();
+const CarRental = db.carRental;
+const Car = db.car;
+const Address = db.address;
 
 app.get("/", (req, res) => {
     res.json({ message: "Welcome to application." });
@@ -52,19 +53,22 @@ app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}.`);
 });
 
-function initial() {
-    Role.create({
+async function initial() {
+    await db.sequelize.sync();
+    const count = await User.count();
+    if (count > 0) { return; }
+    await Role.create({
         id: 1,
         name: "user"
     });
 
-    Role.create({
+    await Role.create({
         id: 2,
         name: "admin"
     });
 
     const adminConfig = require('./config/defaultAdminConfig')
-    User.create({
+    await User.create({
         id: 1,
         username: adminConfig.username,
         email: adminConfig.email,
@@ -74,86 +78,366 @@ function initial() {
         activeAccount: true
     })
 
-    CarCategory.create({
+    await CarCategory.create({
         id: 1,
         name: "mini"
     })
-    CarCategory.create({
+    await CarCategory.create({
         id: 2,
         name: "small"
     })
-    CarCategory.create({
+    await CarCategory.create({
         id: 3,
         name: "medium"
     })
-    CarCategory.create({
+    await CarCategory.create({
         id: 4,
         name: "large"
     })
-    CarCategory.create({
+    await CarCategory.create({
         id: 5,
         name: "executive"
     })
-    CarCategory.create({
+    await CarCategory.create({
         id: 6,
         name: "luxury"
     })
-    CarCategory.create({
+    await CarCategory.create({
         id: 7,
         name: "sport"
     })
 
-    Fuel.create({
+    await Fuel.create({
         id: 1,
         name: "benzin"
     })
 
-    Fuel.create({
+    await Fuel.create({
         id: 2,
         name: "diesel"
     })
 
-    Fuel.create({
+    await Fuel.create({
         id: 3,
         name: "LPG"
     })
 
-    Fuel.create({
+    await Fuel.create({
         id: 4,
         name: "electric"
     })
 
-    Equipment.create({
+    const airConditioning = await Equipment.create({
         id: 1,
         name: "air conditioning"
     })
-    Equipment.create({
+    const abs = await Equipment.create({
         id: 2,
         name: "ABS"
     })
-    Equipment.create({
+    const centralLock = await Equipment.create({
         id: 3,
         name: "central lock"
     })
-    Equipment.create({
+    const airbags = await Equipment.create({
         id: 4,
         name: "airbags"
     })
-    Equipment.create({
+    const audioSystem = await Equipment.create({
         id: 5,
         name: "audio system"
     })
-    Equipment.create({
+    const bluetooth = await Equipment.create({
         id: 6,
         name: "bluetooth"
     })
-    Equipment.create({
+    const cruiseControl = await Equipment.create({
         id: 7,
         name: "cruise control"
     })
-    Equipment.create({
+    const gps = await Equipment.create({
         id: 8,
         name: "GPS navigation"
+    })
+
+    const car1 = await Car.create({
+        brand: "Kia",
+        model: "Picanto",
+        doorsNumber: 5,
+        personsNumber: 5,
+        automaticTransmition: false,
+        carCategoryId: 1,
+        fuelId: 1
+    })
+    await car1.addEquipment(airConditioning);
+    await car1.addEquipment(abs);
+    await car1.addEquipment(centralLock);
+    await car1.addEquipment(airbags);
+
+    const car1Address = await Address.create({
+        addressLine1: "ul. Miodowa 1",
+        addressLine2: null,
+        city: "Kraków",
+        zipCode: "30-002"
+    })
+
+    await CarRental.create({
+        prizePerDay: 95,
+        addressId: car1Address.id,
+        carId: car1.id
+    })
+
+    const car2 = await Car.create({
+        brand: "Toyota",
+        model: "Yaris",
+        doorsNumber: 5,
+        personsNumber: 5,
+        automaticTransmition: false,
+        carCategoryId: 2,
+        fuelId: 1
+    })
+    await car2.addEquipment(airConditioning);
+    await car2.addEquipment(abs);
+    await car2.addEquipment(centralLock);
+    await car2.addEquipment(airbags);
+
+    const car2Address = await Address.create({
+        addressLine1: "ul. Miodowa 2",
+        addressLine2: null,
+        city: "Warszawa",
+        zipCode: "00-001"
+    })
+
+    await CarRental.create({
+        prizePerDay: 99,
+        addressId: car2Address.id,
+        carId: car2.id
+    })
+
+    const car3 = await Car.create({
+        brand: "Opel",
+        model: "Astra",
+        doorsNumber: 5,
+        personsNumber: 5,
+        automaticTransmition: false,
+        carCategoryId: 3,
+        fuelId: 2
+    })
+    await car3.addEquipment(airConditioning);
+    await car3.addEquipment(abs);
+    await car3.addEquipment(centralLock);
+    await car3.addEquipment(airbags);
+    await car3.addEquipment(audioSystem);
+
+    const car3Address = await Address.create({
+        addressLine1: "ul. Miodowa 3",
+        addressLine2: null,
+        city: "Gdańsk",
+        zipCode: "80-002"
+    })
+
+    await CarRental.create({
+        prizePerDay: 139,
+        addressId: car3Address.id,
+        carId: car3.id
+    })
+
+    const car4 = await Car.create({
+        brand: "Kia",
+        model: "Cee'd",
+        doorsNumber: 5,
+        personsNumber: 5,
+        automaticTransmition: false,
+        carCategoryId: 3,
+        fuelId: 2
+    })
+    await car4.addEquipment(airConditioning);
+    await car4.addEquipment(abs);
+    await car4.addEquipment(centralLock);
+    await car4.addEquipment(airbags);
+    await car4.addEquipment(audioSystem);
+
+    const car4Address = await Address.create({
+        addressLine1: "ul. Miodowa 4",
+        addressLine2: null,
+        city: "Kraków",
+        zipCode: "30-002"
+    })
+
+    await CarRental.create({
+        prizePerDay: 139,
+        addressId: car4Address.id,
+        carId: car4.id
+    })
+
+    const car5 = await Car.create({
+        brand: "BMW",
+        model: "1",
+        doorsNumber: 5,
+        personsNumber: 5,
+        automaticTransmition: true,
+        carCategoryId: 4,
+        fuelId: 1
+    })
+    await car5.addEquipment(airConditioning);
+    await car5.addEquipment(abs);
+    await car5.addEquipment(centralLock);
+    await car5.addEquipment(airbags);
+    await car5.addEquipment(audioSystem);
+
+    const car5Address = await Address.create({
+        addressLine1: "ul. Miodowa 5",
+        addressLine2: null,
+        city: "Kraków",
+        zipCode: "30-002"
+    })
+
+    await CarRental.create({
+        prizePerDay: 179,
+        addressId: car5Address.id,
+        carId: car5.id
+    })
+
+    const car6 = await Car.create({
+        brand: "Seat",
+        model: "Arona",
+        doorsNumber: 5,
+        personsNumber: 5,
+        automaticTransmition: false,
+        carCategoryId: 4,
+        fuelId: 1
+    })
+    await car6.addEquipment(airConditioning);
+    await car6.addEquipment(abs);
+    await car6.addEquipment(centralLock);
+    await car6.addEquipment(bluetooth);
+    await car6.addEquipment(audioSystem);
+
+    const car6Address = await Address.create({
+        addressLine1: "ul. Miodowa 5",
+        addressLine2: null,
+        city: "Kraków",
+        zipCode: "30-002"
+    })
+
+    await CarRental.create({
+        prizePerDay: 179,
+        addressId: car6Address.id,
+        carId: car6.id
+    })
+
+    const car7 = await Car.create({
+        brand: "Opel",
+        model: "Vivaro",
+        doorsNumber: 4,
+        personsNumber: 9,
+        automaticTransmition: false,
+        carCategoryId: 4,
+        fuelId: 1
+    })
+    await car7.addEquipment(airConditioning);
+    await car7.addEquipment(abs);
+    await car7.addEquipment(centralLock);
+    await car7.addEquipment(bluetooth);
+    await car7.addEquipment(audioSystem);
+
+    const car7Address = await Address.create({
+        addressLine1: "ul. Miodowa 1",
+        addressLine2: null,
+        city: "Kraków",
+        zipCode: "30-002"
+    })
+
+    await CarRental.create({
+        prizePerDay: 189,
+        addressId: car7Address.id,
+        carId: car7.id
+    })
+
+    const car8 = await Car.create({
+        brand: "Mazda",
+        model: "6",
+        doorsNumber: 5,
+        personsNumber: 5,
+        automaticTransmition: false,
+        carCategoryId: 4,
+        fuelId: 1
+    })
+    await car8.addEquipment(airConditioning);
+    await car8.addEquipment(abs);
+    await car8.addEquipment(centralLock);
+    await car8.addEquipment(bluetooth);
+    await car8.addEquipment(audioSystem);
+
+    const car8Address = await Address.create({
+        addressLine1: "ul. Miodowa 1",
+        addressLine2: null,
+        city: "Kraków",
+        zipCode: "30-002"
+    })
+
+    await CarRental.create({
+        prizePerDay: 180,
+        addressId: car8Address.id,
+        carId: car8.id
+    })
+
+    const car9 = await Car.create({
+        brand: "Toyota",
+        model: "C-HR",
+        doorsNumber: 5,
+        personsNumber: 5,
+        automaticTransmition: true,
+        carCategoryId: 5,
+        fuelId: 1
+    })
+    await car9.addEquipment(airConditioning);
+    await car9.addEquipment(abs);
+    await car9.addEquipment(centralLock);
+    await car9.addEquipment(bluetooth);
+    await car9.addEquipment(audioSystem);
+    await car9.addEquipment(cruiseControl);
+
+    const car9Address = await Address.create({
+        addressLine1: "ul. Miodowa 1",
+        addressLine2: null,
+        city: "Kraków",
+        zipCode: "30-002"
+    })
+
+    await CarRental.create({
+        prizePerDay: 199,
+        addressId: car9Address.id,
+        carId: car9.id
+    })
+
+    const car10 = await Car.create({
+        brand: "Kia",
+        model: "Optima",
+        doorsNumber: 5,
+        personsNumber: 5,
+        automaticTransmition: true,
+        carCategoryId: 4,
+        fuelId: 2
+    })
+    await car10.addEquipment(airConditioning);
+    await car10.addEquipment(abs);
+    await car10.addEquipment(centralLock);
+    await car10.addEquipment(bluetooth);
+    await car10.addEquipment(audioSystem);
+    await car10.addEquipment(airbags);
+
+    const car10Address = await Address.create({
+        addressLine1: "ul. Miodowa 1",
+        addressLine2: null,
+        city: "Kraków",
+        zipCode: "30-002"
+    })
+
+    await CarRental.create({
+        prizePerDay: 199,
+        addressId: car10Address.id,
+        carId: car10.id
     })
 }
 initial();
