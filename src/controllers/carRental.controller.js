@@ -77,6 +77,10 @@ exports.search = async (req, res) => {
     if (new Date(rentFrom).getTime() < Date.now() || new Date(rentTo).getTime() < Date.now()) {
         errors.push({ message: "Car cannot be rented in the past." })
     }
+    if (errors.length > 0) {
+        res.status(400).send({ errors })
+        return;
+    }
 
     let cars = await CarRental.findAll({
         include: [Address, Reservation]
