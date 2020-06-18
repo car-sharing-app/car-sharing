@@ -12,7 +12,6 @@ const Reservation = db.reservation;
 const canReservationBeDone = require('../validators/canReservationBeDone');
 
 exports.add = async (req, res) => {
-    console.log("test")
     const { address, prizePerDay, carId } = req.body || {}
     const errors = addressValidation(address)
     if (prizePerDay <= 0) {

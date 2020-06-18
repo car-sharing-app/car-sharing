@@ -75,3 +75,20 @@ exports.getMy = async (req, res) => {
 
     res.send(reservations);
 }
+
+exports.remove = async (req, res) => {
+    const reservationId = req.params.id;
+    const userId = req.identity.id;
+    let reservation = await Reservation.findOne({
+        where: { userId: userId, id: reservationId }
+    })
+
+    if (reservation == null) {
+        res.status(404).send({ message: "Reservation does not exists." })
+        return;
+    }
+
+    await reservation.destroy();
+
+    res.send({ message: "Reservation has been deleted." })
+}

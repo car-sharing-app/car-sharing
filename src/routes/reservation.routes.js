@@ -9,5 +9,6 @@ router.use(authJwt.isUser)
 
 router.post("/", controller.add)
 router.get("/me", controller.getMy)
+router.delete("/:id", controller.remove);
 
 module.exports = router;
