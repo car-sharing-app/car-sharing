@@ -5,6 +5,7 @@ const db = require('../models')
 const bcrypt = require('bcryptjs')
 const User = db.user;
 const Role = db.role;
+const Address = db.address;
 const { cache } = require('../services/cache')
 const emailService = require('../services/emailService')
 const config = require('../config/appUrl.config')
